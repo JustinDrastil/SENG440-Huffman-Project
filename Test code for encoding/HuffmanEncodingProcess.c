@@ -6,7 +6,7 @@
 
 // Define the node structure
 typedef struct Node {
-    char symbol[3];
+    char symbol[6];  // Increased size to handle the longest symbol "space"
     double probability;
     struct Node *left, *right;
 } Node;
@@ -67,7 +67,8 @@ int main() {
 // Function to create a new node
 Node* create_node(const char *symbol, double probability) {
     Node *node = (Node *)malloc(sizeof(Node));
-    strcpy(node->symbol, symbol);
+    strncpy(node->symbol, symbol, sizeof(node->symbol) - 1);
+    node->symbol[sizeof(node->symbol) - 1] = '\0';  // Ensure null termination
     node->probability = probability;
     node->left = node->right = NULL;
     return node;
