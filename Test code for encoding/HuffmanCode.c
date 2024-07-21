@@ -37,11 +37,11 @@ void insert_priority_queue(PriorityQueue *pq, Node *node) {
 }
 
 Node* remove_min_priority_queue(PriorityQueue *pq) {
+    if (pq->size == 0) return NULL;
     Node *minNode = pq->nodes[0];
     pq->nodes[0] = pq->nodes[--pq->size];
     int i = 0, smallest = 0;
-    while (i != smallest) {
-        i = smallest;
+    while (1) {
         int left = 2 * i + 1;
         int right = 2 * i + 2;
         if (left < pq->size && pq->nodes[left]->probability < pq->nodes[smallest]->probability) {
@@ -54,6 +54,9 @@ Node* remove_min_priority_queue(PriorityQueue *pq) {
             Node *temp = pq->nodes[i];
             pq->nodes[i] = pq->nodes[smallest];
             pq->nodes[smallest] = temp;
+            i = smallest;
+        } else {
+            break;
         }
     }
     return minNode;
@@ -94,16 +97,22 @@ void build_huffman_tree(Symbol symbols[], int n, Node **root) {
     PriorityQueue pq;
     init_priority_queue(&pq);
 
+    printf("Inserting nodes into priority queue:\n");
     for (int i = 0; i < n; ++i) {
+        printf("Symbol: %c, Probability: %.4f\n", symbols[i].symbol, symbols[i].probability);
         insert_priority_queue(&pq, create_node(symbols[i].symbol, symbols[i].probability));
     }
 
     while (pq.size > 1) {
         Node *left = remove_min_priority_queue(&pq);
         Node *right = remove_min_priority_queue(&pq);
+        printf("Combining nodes: %c(%.4f) + %c(%.4f)\n",
+               left->symbol ? left->symbol : '#', left->probability,
+               right->symbol ? right->symbol : '#', right->probability);
         Node *newNode = create_node('\0', left->probability + right->probability);
         newNode->left = left;
         newNode->right = right;
+        printf("New node created with probability: %.4f\n", newNode->probability);
         insert_priority_queue(&pq, newNode);
     }
 
@@ -115,6 +124,10 @@ void generate_codes(Node *root, char **codes, char *code, int depth) {
     if (!root->left && !root->right) {
         code[depth] = '\0';
         codes[(int)root->symbol] = (char *)malloc((depth + 1) * sizeof(char));
+        if (codes[(int)root->symbol] == NULL) {
+            fprintf(stderr, "Memory allocation failed for code of symbol %c\n", root->symbol);
+            exit(1);
+        }
         strcpy(codes[(int)root->symbol], code);
     }
     if (root->left) {
@@ -133,6 +146,10 @@ char* huffman_encode(char *input, char **codes) {
         length += strlen(codes[(int)input[i]]);
     }
     char *encoded = (char *)malloc((length + 1) * sizeof(char));
+    if (encoded == NULL) {
+        fprintf(stderr, "Memory allocation failed for encoded string\n");
+        exit(1);
+    }
     encoded[0] = '\0';
     for (int i = 0; input[i] != '\0'; ++i) {
         strcat(encoded, codes[(int)input[i]]);
@@ -144,6 +161,10 @@ char* huffman_decode(char *encoded, Node *root) {
     Node *current = root;
     int length = strlen(encoded);
     char *decoded = (char *)malloc((length + 1) * sizeof(char));
+    if (decoded == NULL) {
+        fprintf(stderr, "Memory allocation failed for decoded string\n");
+        exit(1);
+    }
     int j = 0;
     for (int i = 0; i < length; ++i) {
         if (encoded[i] == '0') {
@@ -160,50 +181,15 @@ char* huffman_decode(char *encoded, Node *root) {
     return decoded;
 }
 
-void print_tree(Node *root, int depth) {
-    if (root == NULL) return;
-
-    // Print right subtree first (for visual alignment)
-    print_tree(root->right, depth + 1);
-
-    // Print current node with indentation based on depth
-    for (int i = 0; i < depth; i++) printf("    ");
-    if (root->symbol) {
-        printf("%c: %.4f\n", root->symbol, root->probability);
-    } else {
-        printf("[%.4f]\n", root->probability);
-    }
-
-    // Print left subtree
-    print_tree(root->left, depth + 1);
-}
-
 int main() {
     Symbol symbols[] = {
-        {' ', 14.6367}, {'e', 7.6227}, {'t', 5.4230}, {'a', 5.1828}, {'o', 4.6565},
-        {'n', 4.4658}, {'i', 4.4577}, {'s', 4.1218}, {'r', 4.0743}, {'h', 2.9104},
-        {'l', 2.5139}, {'d', 2.3334}, {'t', 1.9341}, {'c', 1.9303}, {'h', 1.8339},
-        {'.', 1.8071}, {',', 1.7678}, {'u', 1.5885}, {'m', 1.4448}, {'f', 1.2770},
-        {'p', 1.2363}, {'g', 1.1882}, {'i', 1.1377}, {'e', 1.0850}, {'a', 1.0663},
-        {'y', 1.0457}, {'w', 1.0000}, {'r', 0.8715}, {'b', 0.8528}, {'d', 0.7831},
-        {'o', 0.7065}, {'e', 0.6891}, {'a', 0.6653}, {'v', 0.6433}, {'\'', 0.5694},
-        {'k', 0.4537}, {'"', 0.4467}, {'T', 0.3205}, {'S', 0.3003}, {'A', 0.2766},
-        {'M', 0.2555}, {'C', 0.2258}, {'I', 0.2199}, {'N', 0.2022}, {'B', 0.1669},
-        {'R', 0.1442}, {'P', 0.1420}, {'E', 0.1363}, {'D', 0.1276}, {'H', 0.1217},
-        {'x', 0.1217}, {'W', 0.1055}, {'L', 0.1053}, {'O', 0.1041}, {'F', 0.0992},
-        {'Y', 0.0928}, {'G', 0.0918}, {'J', 0.0775}, {'z', 0.0654}, {'j', 0.0648},
-        {'U', 0.0566}, {'q', 0.0534}, {'K', 0.0459}, {'V', 0.0306}, {'Q', 0.0115},
-        {'X', 0.0075}, {'Z', 0.0055}
+        {' ', 14.6367}, {'e', 7.6227}, {'t', 5.4230}, {'a', 5.1828}, {'o', 4.6565}
     };
 
     int n = sizeof(symbols) / sizeof(symbols[0]);
 
     Node *root;
     build_huffman_tree(symbols, n, &root);
-
-    // Print the tree structure
-    printf("Huffman Tree:\n");
-    print_tree(root, 0);
 
     char *codes[MAX_SYMBOLS] = {0};
     char code[MAX_CODE_LENGTH];
@@ -218,10 +204,10 @@ int main() {
 
     char input[] = "hello world";
     char *encoded = huffman_encode(input, codes);
-    //printf("\nEncoded: %s\n", encoded);
+    printf("\nEncoded: %s\n", encoded);
 
     char *decoded = huffman_decode(encoded, root);
-    //printf("Decoded: %s\n", decoded);
+    printf("Decoded: %s\n", decoded);
 
     // Free allocated memory
     free(encoded);
