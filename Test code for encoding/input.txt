@@ -1,0 +1,15 @@
+In our case, the encodings are given by the standard and we just have to use them.
+We better focus our curiosity on the problem of optimal decoding of a given encoding.
+Naturally, it is possible to choose a representation of the binary Huffman tree and
+decode a bit stream by traversing the tree. Each time we encounter a leaf node,
+we emit the corresponding character and start over from the root of the tree. The
+runtime of this algorithm is proportional to the number of bit in the bit stream, and
+this is not bad. Since the most frequent characters will have short codes, they can be
+decoded very fast.
+An alternative is decoding with a lookup table. The index, we want to use is the
+Huffman code, and the result is the corresponding character. Our Huffman codes are,
+however, of variable length, and we do not even know the exact length before we have
+decoded them. We solve this problem, by taking a bit string of maximum code length
+from the input and use it as an index. For a short code this means that there must
+be many different entries in our table, one for every possible extension of the code up
+to the maximum code length.
