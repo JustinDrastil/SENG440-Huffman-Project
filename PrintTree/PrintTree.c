@@ -50,7 +50,7 @@ void printTree(TreeNode *node, int depth, char direction, FILE*fptr) {
                 fprintf(fptr,"%c = ", direction);
                 fprintf(fptr,"%c\n", node->character);
             } else {
-                fprintf(fptr,"%c = ' '", direction);
+                fprintf(fptr,"%c = ' '\n", direction);
             }
             
         } else {
@@ -74,24 +74,26 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    char* codes[EXPECTED_SYMBOLS] = {0};
+    char codes[EXPECTED_SYMBOLS][25] = {0};
     char chars[EXPECTED_SYMBOLS] = {0};
 
-    char* ch;
-
-    FILE* fp;
-    int bufferLength = 255;
-    char buffer[255];
+    int bufferLength = 25;
+    char buffer[25];
+    char code[15];
     int count = 0;
 
     while (fgets(buffer, bufferLength, file) && count < EXPECTED_SYMBOLS) {
         chars[count] = buffer[1];
-        *buffer = *buffer + 5;
-        strcpy(codes[count], buffer);
+        int i = 0;
+        while (buffer[i+5] != '\n') {
+            code[i] = *(buffer + i + 5);
+            i++;
+        }
+        code[i] = '\0';
+        strcpy(codes[count], code);
         count++;
     }
-
-    fclose(fp);
+    fclose(file);
 
     // Print codes in tree format to a file
     // Create the root of the tree
@@ -111,7 +113,7 @@ int main(int argc, char *argv[]) {
     printTree(root, 0, ' ', fptr);
 
     fclose(fptr);
-    printf("Printed to tree.txt");
+    printf("Printed to tree.txt\n");
 
     return 0;
 }
