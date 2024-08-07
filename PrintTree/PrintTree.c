@@ -80,14 +80,14 @@ int main(int argc, char *argv[]) {
     char* ch;
 
     FILE* fp;
-    char* line = NULL;
-    const int len = 21;
+    int bufferLength = 255;
+    char buffer[255];
     int count = 0;
 
-    while (fgets(line, sizeof(line), file) && count < EXPECTED_SYMBOLS) {
-        chars[count] = line[1];
-        *line = *line + 5;
-        strcpy(codes[count], line);
+    while (fgets(buffer, bufferLength, file) && count < EXPECTED_SYMBOLS) {
+        chars[count] = buffer[1];
+        *buffer = *buffer + 5;
+        strcpy(codes[count], buffer);
         count++;
     }
 
@@ -105,12 +105,13 @@ int main(int argc, char *argv[]) {
 
     // Print the binary tree to a file
     FILE *fptr;
-    fptr = fopen("output.txt", "w");
+    fptr = fopen("tree.txt", "w");
 
     fprintf(fptr, "Binary Tree:\n");
     printTree(root, 0, ' ', fptr);
 
     fclose(fptr);
+    printf("Printed to tree.txt");
 
     return 0;
 }
