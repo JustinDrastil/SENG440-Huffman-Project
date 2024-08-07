@@ -175,8 +175,10 @@ void buildPath(Node *root, int code, int depth) {
 // Build the Huffman tree
 Node* buildHuffmanTree() {
     Node* root = createNode('*');
-    for (int i = 0; i < LOOKUP_SIZE; i++) {
+    int i = 0;
+    while(i < LOOKUP_SIZE) {
         buildPath(root, i, 0);
+        i++;
     }
     return root;
 }
