@@ -110,7 +110,7 @@ void generateCodes(Node *root, char *code, int depth, char codes[ASCII_SIZE][ASC
     }
 }
 
-// Print Huffman codes
+// Print Huffman codes (lookup table)
 void printCodes(char codes[ASCII_SIZE][ASCII_SIZE]) {
     printf("Huffman Codes:\n");
     for (int i = 0; i < ASCII_SIZE; i++) {
@@ -152,65 +152,6 @@ void decode(FILE *input, FILE *output, Node *root) {
         }
     }
 }
-
-// Utility function to calculate the height of the tree
-int getHeight(Node *root) {
-    if (!root) return 0;
-    int leftHeight = getHeight(root->left);
-    int rightHeight = getHeight(root->right);
-    return (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
-}
-
-// Utility function to print spaces
-void printSpaces(int count) {
-    for (int i = 0; i < count; i++) {
-        printf(" ");
-    }
-}
-
-// Utility function to print the current level of the tree
-void printLevel(Node *root, int level, int indentSpace, int branchWidth) {
-    if (!root) {
-        printSpaces(branchWidth + indentSpace);
-        return;
-    }
-    if (level == 1) {
-        if (root->character) {
-            printf("%c(%d)", root->character, root->frequency);
-        } else {
-            printf("*(%d)", root->frequency);
-        }
-        printSpaces(branchWidth + indentSpace - (int)strlen("*(41)"));
-    } else if (level > 1) {
-        printLevel(root->left, level - 1, indentSpace, branchWidth);
-        printLevel(root->right, level - 1, indentSpace, branchWidth);
-    }
-}
-
-// Print Huffman tree structure in the specified format
-void printTree(Node *root) {
-    int height = getHeight(root);
-    int indentSpace = 4;  // The space between the levels
-    int branchWidth = 8;  // The width of the branches
-
-    for (int i = 1; i <= height; i++) {
-        printSpaces((branchWidth + indentSpace) * (height - i));
-        printLevel(root, i, indentSpace, branchWidth);
-        printf("\n");
-        if (i < height) {
-            printSpaces((branchWidth + indentSpace) * (height - i - 1));
-            for (int j = 0; j < (1 << (i - 1)); j++) {
-                printSpaces(branchWidth / 2);
-                printf("/");
-                printSpaces(branchWidth);
-                printf("\\");
-                printSpaces(branchWidth / 2);
-            }
-            printf("\n");
-        }
-    }
-}
-
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         printf("Usage: %s <file>\n", argv[0]);
@@ -234,18 +175,14 @@ int main(int argc, char *argv[]) {
 
     // Step 3: Print Huffman codes
     printCodes(codes);
-
-    // Step 4: Print Huffman tree structure
-    //    printf("\nHuffman Tree Structure:\n");
-    //    printTree(root);
-
-    // Step 5: Encode the input file
+    
+    // Step 4: Encode the input file
     rewind(file);
     FILE *encoded_file = fopen("encoded.txt", "w");
     encode(file, encoded_file, codes);
     fclose(encoded_file);
 
-    // Step 6: Decode the encoded file
+    // Step 5: Decode the encoded file
     encoded_file = fopen("encoded.txt", "r");
     FILE *decoded_file = fopen("decoded.txt", "w");
     decode(encoded_file, decoded_file, root);
