@@ -69,10 +69,11 @@ void encode(FILE *input, FILE *output) {
     while ((ch = fgetc(input)) != EOF) {
         if (ch >= 0 && ch < 128 && lookup[ch] != NULL) {
             fputs(lookup[ch], output);
-        } else {
+        } 
+       /* else {
             // Handle unknown characters or add default encoding
             fputs("UNKNOWN", output); // You can customize this as needed
-        }
+        }*/
     }
 }
 
