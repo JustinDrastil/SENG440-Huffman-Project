@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
+// BARR-C: Don't alter any C keywords with #define
 #define ASCII_SIZE 256
 #define LOOKUP_SIZE 123
 
@@ -132,14 +134,19 @@ const char lookup[ASCII_SIZE][16] = {
     "11011000101"
 };
 
-typedef struct Node {
-    char character;
+typedef struct Node 
+{
+    // Barr-C: use values with implementation defined widths instead of unsigned char
+    uint8_t character;
     struct Node *left;
     struct Node *right;
 } Node;
 
+
+// Barr-C: All private functions should be declared static
 // Create a new tree node
-Node* createNode(char character) {
+static Node* createNode(char character) 
+{
     Node *new_node = (Node*)malloc(sizeof(Node));
     new_node->character = character;
     new_node->left = NULL;
@@ -147,75 +154,116 @@ Node* createNode(char character) {
     return new_node;
 }
 
+// Barr-C: All private functions should be declared static
 // Build path to given Huffman Code
-void buildPath(Node *root, int code, int depth) {  
-    if (lookup[code][depth] == '\0') {
-        root->character = (unsigned char)code;
-    } else if (lookup[code][depth] == '0') {
+static void buildPath(Node *root, int code, int depth) 
+{  
+    // BARR-C: braces surround blocks of code in if, else, while, etc
+    // where the braces on their own lines
+    if (lookup[code][depth] == '\0') 
+    {
+        // BARR-C: Comment an explanation for casts!
+        // code is an unsigned integer, where the value aligns with the ASCII 8 bit value
+        // that represents a character
+        root->character = (uint8_t)code;
+    } 
+    else if (lookup[code][depth] == '0') 
+    {
         if (root->left) {
             buildPath(root->left, code, depth + 1);
         } else {
             root->left = createNode('*');
             buildPath(root->left, code, depth + 1);
         }
-    } else if (lookup[code][depth] =='1') {
-        if (root->right) {
+    } 
+    else if (lookup[code][depth] =='1') 
+    {
+        if (root->right) 
+        {
             buildPath(root->right, code, depth + 1);
-        } else {
+        } 
+        else 
+        {
             root->right = createNode('*');
             buildPath(root->right, code, depth + 1);
         }
-    } else {
+    } 
+    else 
+    {
         // Invalid Character
         printf("Error: Invalid Character in Encoded File (not 0 or 1)\n");
     }
+    // MISRA-C: one exit point for function via return at the bottom
     return;
 }
 
+// Barr-C: All private functions should be declared static
 // Build the Huffman tree
-Node* buildHuffmanTree() {
+static Node* buildHuffmanTree() 
+{
     Node* root = createNode('*');
     int i = 0;
-    while(i < LOOKUP_SIZE) {
+    while(i < LOOKUP_SIZE) 
+    {
         buildPath(root, i, 0);
         i++;
     }
+    // MISRA-C: one exit point for function via return at the bottom
     return root;
 }
 
+// Barr-C: All private functions should be declared static
 // Decode the encoded file using a Huffman tree
-void decode(FILE *input, FILE *output, Node *root) {
+static void decode(FILE *input, FILE *output, Node *root) 
+{
     Node *current = root;
     char bit;
-    while ((bit = fgetc(input)) != EOF) {
-        if (bit == '0') {
+
+    // BARR-C: braces surround blocks of code in if, else, while, etc
+    // where the braces on their own lines
+    while ((bit = fgetc(input)) != EOF) 
+    {
+        if (bit == '0') 
+        {
             current = current->left;
-        } else if (bit == '1') {
+        } 
+        else if (bit == '1') 
+        {
             current = current->right;
-        } else {
+        } 
+        else 
+        {
             // Invalid Character
             printf("Error: Invalid Character in Encoded File (not 0 or 1)\n");
             return;
         }
-        if (!current->left && !current->right) {
+
+        if (!current->left && !current->right) 
+        {
             fputc(current->character, output);
             current = root;
-        } else {
+        } 
+        else 
+        {
+            // MISRA-C: Include else block for all if statements
             // Continue Looking for Matching Leaf Node
         }
     }
+    // MISRA-C: one exit point for function via return at the bottom
     return;
 }
 
 int main(int argc, char *argv[]) {
     // Step 1: Access Encoded File
-    if (argc != 2) {
+    if (argc != 2) 
+    {
         printf("Usage: %s <file>\n", argv[0]);
         return 1;
     }
 
     FILE *file = fopen(argv[1], "r");
-    if (!file) {
+    if (!file) 
+    {
         perror("Error opening file");
         return 1;
     }
