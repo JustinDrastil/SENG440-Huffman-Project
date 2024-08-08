@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdint.h>
 
 // Lookup Table for ASCII 0 -> 122 (inclusive)
-static char lookup[][16] = {
+static const char* lookup[128] = {
     [' '] = "100",
     ['"'] = "00111111",
     ['\''] = "11011001",
@@ -66,18 +65,18 @@ static char lookup[][16] = {
 
 // Encode the input file using the lookup table
 void encode(FILE *input, FILE *output) {
-    char ch;
-    ch = fgetc(input);
-    while (ch != EOF) {
-        // Lookup Table uses ASCII position for the output characters,
-        // convert char to its equivalent ASCII value to find it
-        fputs(lookup[(uint8_t)ch], output);
-        ch = fgetc(input);
+    int ch;
+    while ((ch = fgetc(input)) != EOF) {
+        if (ch >= 0 && ch < 128 && lookup[ch] != NULL) {
+            fputs(lookup[ch], output);
+        } else {
+            // Handle unknown characters or add default encoding
+            fputs("UNKNOWN", output); // You can customize this as needed
+        }
     }
 }
 
 int main(int argc, char *argv[]) {
-    // Step 1: Access Input File
     if (argc != 2) {
         printf("Usage: %s <file>\n", argv[0]);
         return 1;
@@ -85,12 +84,11 @@ int main(int argc, char *argv[]) {
 
     FILE *file = fopen(argv[1], "r");
     if (!file) {
-        perror("Error opening file");
+        perror("Error opening input file");
         return 1;
     }
     printf("Input file opened successfully.\n");
 
-    // Step 2: Encode the input file
     FILE *encoded_file = fopen("encoded.txt", "w");
     if (!encoded_file) {
         perror("Error opening encoded file");
