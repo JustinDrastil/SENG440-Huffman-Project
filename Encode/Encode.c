@@ -135,6 +135,7 @@ const char lookup[ASCII_SIZE][16] = {
 void encode(FILE *input, FILE *output) {
     char ch;
     while ((ch = fgetc(input)) != EOF) {
+        printf("Reading... %c\n", ch);
         fputs(lookup[(unsigned char)ch], output);
     }
 }
