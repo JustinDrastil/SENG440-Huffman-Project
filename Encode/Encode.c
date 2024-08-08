@@ -151,12 +151,20 @@ int main(int argc, char *argv[]) {
         perror("Error opening file");
         return 1;
     }
-    
+    printf("Input file opened successfully.\n");
+
     // Step 2: Encode the input file
     FILE *encoded_file = fopen("encoded.txt", "w");
-    encode(file, encoded_file);
-    fclose(encoded_file);
+    if (!encoded_file) {
+        perror("Error opening encoded file");
+        fclose(file);
+        return 1;
+    }
+    printf("Output file created successfully.\n");
 
+    encode(file, encoded_file);
+
+    fclose(encoded_file);
     fclose(file);
 
     printf("Encoding completed. Check 'encoded.txt'.\n");
