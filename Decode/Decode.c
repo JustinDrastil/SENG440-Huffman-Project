@@ -160,14 +160,15 @@ static void buildPath(Node *root, int code, int depth)
 {  
     // BARR-C: braces surround blocks of code in if, else, while, etc
     // where the braces on their own lines
-    if (lookup[code][depth] == '\0') 
+    // BARR-C: constants on left of an if comparison
+    if ('\0' == lookup[code][depth]) 
     {
         // BARR-C: Comment an explanation for casts!
         // code is an unsigned integer, where the value aligns with the ASCII 8 bit value
         // that represents a character
         root->character = (uint8_t)code;
     } 
-    else if (lookup[code][depth] == '0') 
+    else if ('0' == lookup[code][depth]) 
     {
         if (root->left) {
             buildPath(root->left, code, depth + 1);
@@ -176,7 +177,7 @@ static void buildPath(Node *root, int code, int depth)
             buildPath(root->left, code, depth + 1);
         }
     } 
-    else if (lookup[code][depth] =='1') 
+    else if ('1' == lookup[code][depth]) 
     {
         if (root->right) 
         {
@@ -223,11 +224,12 @@ static void decode(FILE *input, FILE *output, Node *root)
     // where the braces on their own lines
     while ((bit = fgetc(input)) != EOF) 
     {
-        if (bit == '0') 
+        // BARR-C: constants on left of an if comparison
+        if ('0' == bit) 
         {
             current = current->left;
         } 
-        else if (bit == '1') 
+        else if ('1' == bit) 
         {
             current = current->right;
         } 
@@ -255,7 +257,7 @@ static void decode(FILE *input, FILE *output, Node *root)
 
 int main(int argc, char *argv[]) {
     // Step 1: Access Encoded File
-    if (argc != 2) 
+    if (2 != argc) 
     {
         printf("Usage: %s <file>\n", argv[0]);
         return 1;
