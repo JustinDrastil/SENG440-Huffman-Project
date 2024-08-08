@@ -91,17 +91,18 @@ static Node* createNode(char character)
 // Build path to given Huffman Code
 static void buildPath(Node *root, int code, int depth) 
 {  
+    const char bit = lookup[code][depth];
     // BARR-C: braces surround blocks of code in if, else, while, etc
     // where the braces on their own lines
     // BARR-C: constants on left of an if comparison
-    if ('\0' == lookup[code][depth]) 
+    if ('\0' == bit) 
     {
         // BARR-C: Comment an explanation for casts!
         // code is an unsigned integer, where the value aligns with the ASCII 8 bit value
         // that represents a character
         root->character = (uint8_t)code;
     } 
-    else if ('0' == lookup[code][depth]) 
+    else if ('0' == bit) 
     {
         if (root->left) {
             buildPath(root->left, code, depth + 1);
@@ -110,7 +111,7 @@ static void buildPath(Node *root, int code, int depth)
             buildPath(root->left, code, depth + 1);
         }
     } 
-    else if ('1' == lookup[code][depth]) 
+    else if ('1' == bit) 
     {
         if (root->right) 
         {
