@@ -4,10 +4,10 @@
 #include <stdint.h>
 
 // BARR-C: Don't alter any C keywords with #define
-#define LOOKUP_SIZE 123
+#define LOOKUP_SIZE 128
 
 // Lookup Table
-static char lookup[][16] = {
+static const char* lookup[LOOKUP_SIZE] = {
     [' '] = "100",
     ['"'] = "00111111",
     ['\''] = "11011001",
