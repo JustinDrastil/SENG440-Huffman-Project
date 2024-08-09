@@ -9,6 +9,7 @@
 	.eabi_attribute 30, 6
 	.eabi_attribute 18, 4
 	.file	"Encode.c"
+
 	.section	.rodata
 	.align	2
 .LC0:
@@ -181,6 +182,7 @@
 	.align	2
 .LC56:
 	.ascii	"11011000101\000"
+
 	.data
 	.align	2
 	.type	lookup, %object
@@ -251,11 +253,12 @@ lookup:
 	.word	.LC55
 	.word	.LC56
 	.space	20
+
 	.text
 	.align	2
 
-	.global	encode
-	.type	encode, %function
+	.global encode
+	.type encode, %function
 encode:
 	@ Function supports interworking.
 	@ args = 0, pretend = 0, frame = 32
@@ -304,3 +307,11 @@ end_loop:
 .L5:
 	.word	lookup			@ Address of the lookup table
 	.size	encode, .-encode	@ Size of the encode function
+
+	.global main
+	.type main, %function
+main:
+	@ Simple main function to call encode
+	bl encode
+	mov r0, #0          @ Return code 0
+	bx lr               @ Return from function
