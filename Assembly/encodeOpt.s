@@ -177,7 +177,7 @@ read_loop:
     cmp     r0, #122            @ Compare character to ASCII 'z'
     bhi     invalid_char        @ If character is greater than 'z', it's invalid
 
-    ldr     r2, .L5             @ Load address of the lookup table
+    ldr     r2, =lookup         @ Load address of the lookup table
     ldr     r3, [r2, r0, lsl #2]@ Load encoded string address from lookup table
     cmp     r3, #0              @ Check if the lookup returned a valid string
     beq     invalid_char        @ If no valid string, treat character as invalid
