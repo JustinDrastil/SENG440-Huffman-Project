@@ -69,6 +69,7 @@
     .LC54: .ascii "1101001011\000"
     .LC55: .ascii "1101101\000"
     .LC56: .ascii "11011000101\000"
+    invalid_char_str: .ascii "Invalid character encountered.\000"
 
     .data
     .align  2
@@ -182,13 +183,14 @@ read_loop:
     cmp     r3, #0              @ Check if the lookup returned a valid string
     beq     invalid_char        @ If no valid string, treat character as invalid
 
-    ldr     r4, [fp, #-20]      @ Load output file pointer from stack
+    ldr     r1, [fp, #-20]      @ Load output file pointer from stack
+    mov     r0, r3              @ Set the encoded string as output
     bl      fputs               @ Write the encoded string to the output file
     b       read_loop           @ Continue with the next character
 
 invalid_char:
-    ldr     r2, =invalid_char_str  @ Load the address of the invalid character string
-    ldr     r3, [fp, #-20]      @ Load output file pointer from stack
+    ldr     r1, [fp, #-20]      @ Load output file pointer
+    ldr     r0, =invalid_char_str  @ Load address of the invalid character string
     bl      fputs               @ Write the invalid character message to output
     b       read_loop           @ Continue with the next character
 
