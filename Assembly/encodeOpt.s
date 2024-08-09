@@ -141,18 +141,18 @@ encode:
 	str r0, [fp, #-16]  @ file descriptor
 	str r1, [fp, #-20]  @ lookup table pointer
 
-	b .L2
-.L3:
+	b .L1
+.L2:
 	ldr r0, [fp, #-16]
 	bl fgetc
 	mov r3, r0
 	cmp r3, #0
-	beq .L4
+	beq .L3
 	ldr r1, [fp, #-20]
 	ldr r2, [r1, r3, lsl #2]
 	bl fputs
 	b .L2
-.L4:
+.L3:
 	ldmfd sp!, {fp, lr}
 	bx lr
 	.size encode, .-encode
@@ -169,29 +169,29 @@ main:
 
 	ldr r3, [fp, #-16]
 	cmp r3, #2
-	bne .L9
+	bne .L5
 	ldr r0, [fp, #-20]
 	add r0, r0, #4
 	ldr r0, [r0]
 	bl fopen
 	cmp r0, #0
-	beq .L10
+	beq .L6
 	ldr r0, =.LC13
 	bl perror
 	mov r0, #1
-	b .L9
-.L10:
+	b .L5
+.L6:
 	ldr r1, [fp, #-20]
 	add r1, r1, #8
 	ldr r1, [r1]
 	bl fopen
 	cmp r0, #0
-	beq .L11
+	beq .L7
 	ldr r0, =.LC13
 	bl perror
 	mov r0, #1
-	b .L9
-.L11:
+	b .L5
+.L7:
 	ldr r0, [fp, #-12]
 	ldr r1, [fp, #-8]
 	bl encode
@@ -200,7 +200,7 @@ main:
 	ldr r0, [fp, #-8]
 	bl fclose
 	mov r0, #0
-.L9:
+.L5:
 	ldmfd sp!, {fp, lr}
 	bx lr
 	.size main, .-main
