@@ -256,9 +256,6 @@ lookup:
 	.global	encode
 	.type	encode, %function
 encode:
-	@ Function supports interworking.
-	@ args = 0, pretend = 0, frame = 16
-	@ frame_needed = 1, uses_anonymous_args = 0
 	stmfd	sp!, {fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #16
@@ -267,69 +264,25 @@ encode:
 
 	b	.L2
 .L3:
-	ldr	r3, [fp, #-16]
-	cmp	r3, #0
-	blt	.L2
-	ldr	r3, [fp, #-16]
-	cmp	r3, #127
-	bgt	.L2
-	ldr	r3, [fp, #-16]
-	ldr	r2, [fp, #-20]
-	ldr	r3, [r2, r3, asl #2]
-	cmp	r3, #0
-	beq	.L2
-	ldr	r3, [fp, #-16]
-	ldr	r2, [fp, #-20]
-	ldr	r3, [r2, r3, asl #2]
-	mov	r0, r3
-	bl fputs
-.L2:
+	ldr	r0, [fp, #-16]
 	bl fgetc
 	mov	r3, r0
-	str	r3, [fp, #-16]
-	ldr	r3, [fp, #-16]
-	cmp	r3, #1
-	bne	.L3
+	cmp	r3, #0
+	beq	.L4
+	ldr	r1, [fp, #-20]
+	ldr	r2, [r1, r3, lsl #2]
+	bl fputs
+	b	.L2
+.L4:
 	sub	sp, fp, #4
 	ldmfd	sp!, {fp, lr}
 	bx	lr
 	.size	encode, .-encode
-	.section	.rodata
-	.align	2
-.LC57:
-	.ascii	"Usage: %s <file>\012\000"
-	.align	2
-.LC58:
-	.ascii	"r\000"
-	.align	2
-.LC59:
-	.ascii	"Error opening input file\000"
-	.align	2
-.LC60:
-	.ascii	"Input file opened successfully.\000"
-	.align	2
-.LC61:
-	.ascii	"encoded.txt\000"
-	.align	2
-.LC62:
-	.ascii	"w\000"
-	.align	2
-.LC63:
-	.ascii	"Error opening encoded file\000"
-	.align	2
-.LC64:
-	.ascii	"Output file created successfully.\000"
-	.align	2
-.LC65:
-	.ascii	"Encoding completed. Check 'encoded.txt'.\000"
 	.text
 	.align	2
 	.global	main
 	.type	main, %function
 main:
-	@ Function supports interworking.
-	@ args = 0, pretend = 0, frame = 24
-	@ frame_needed = 1, uses_anonymous_args = 0
 	stmfd	sp!, {fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #24
@@ -339,65 +292,42 @@ main:
 	ldr	r3, [fp, #-16]
 	cmp	r3, #2
 	beq	.L8
-	ldr	r3, [fp, #-20]
-	ldr	r3, [r3, #0]
 	ldr	r0, .L13
-	mov	r1, r3
 	bl printf
-	mov	r3, #1
-	str	r3, [fp, #-24]
 	b	.L9
 .L8:
-	ldr	r3, [fp, #-20]
-	add	r3, r3, #4
-	ldr	r3, [r3, #0]
-	mov	r0, r3
-	ldr	r1, .L13+4
+	ldr	r0, [fp, #-20]
+	add	r0, r0, #4
+	ldr	r0, [r0, #0]
 	bl fopen
-	mov	r3, r0
-	str	r3, [fp, #-12]
-	ldr	r3, [fp, #-12]
-	cmp	r3, #0
-	bne	.L10
-	ldr	r0, .L13+8
+	cmp	r0, #0
+	beq	.L10
+	ldr	r0, .L13+4
 	bl perror
-	mov	r3, #1
-	str	r3, [fp, #-24]
+	mov	r0, #1
 	b	.L9
 .L10:
-	ldr	r0, .L13+12
-	bl puts
-	ldr	r0, .L13+16
-	ldr	r1, .L13+20
+	ldr	r1, [fp, #-20]
+	add	r1, r1, #8
+	ldr	r1, [r1, #0]
 	bl fopen
-	mov	r3, r0
-	str	r3, [fp, #-8]
-	ldr	r3, [fp, #-8]
-	cmp	r3, #0
-	bne	.L11
-	ldr	r0, .L13+24
+	cmp	r0, #0
+	beq	.L11
+	ldr	r0, .L13+8
 	bl perror
-	ldr	r0, [fp, #-12]
-	bl fclose
-	mov	r3, #1
-	str	r3, [fp, #-24]
+	mov	r0, #1
 	b	.L9
 .L11:
-	ldr	r0, .L13+28
-	bl puts
 	ldr	r0, [fp, #-12]
 	ldr	r1, [fp, #-8]
 	bl encode
-	ldr	r0, [fp, #-8]
-	bl fclose
 	ldr	r0, [fp, #-12]
 	bl fclose
-	ldr	r0, .L13+32
-	bl puts
-	mov	r3, #0
-	str	r3, [fp, #-24]
+	ldr	r0, [fp, #-8]
+	bl fclose
+	mov	r0, #0
 .L9:
-	ldr	r3, [fp, #-24]
+	ldr	r3, [fp, #-16]
 	mov	r0, r3
 	sub	sp, fp, #4
 	ldmfd	sp!, {fp, lr}
