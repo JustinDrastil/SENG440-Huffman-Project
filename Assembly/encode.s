@@ -262,42 +262,37 @@ encode:
 	stmfd	sp!, {fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #16
-	str	r0, [fp, #-16]
-	str	r1, [fp, #-20]
+	str	r0, [fp, #-16]  @ file descriptor
+	str	r1, [fp, #-20]  @ lookup table pointer
+
 	b	.L2
 .L3:
-	ldr	r3, [fp, #-8]
+	ldr	r3, [fp, #-16]
 	cmp	r3, #0
 	blt	.L2
-	ldr	r3, [fp, #-8]
+	ldr	r3, [fp, #-16]
 	cmp	r3, #127
 	bgt	.L2
-	ldr	r3, [fp, #-8]
-	ldr	r2, .L5
+	ldr	r3, [fp, #-16]
+	ldr	r2, [fp, #-20]
 	ldr	r3, [r2, r3, asl #2]
 	cmp	r3, #0
 	beq	.L2
-	ldr	r3, [fp, #-8]
-	ldr	r2, .L5
+	ldr	r3, [fp, #-16]
+	ldr	r2, [fp, #-20]
 	ldr	r3, [r2, r3, asl #2]
 	mov	r0, r3
-	ldr	r1, [fp, #-20]
-	bl	fputs
+	bl fputs
 .L2:
-	ldr	r0, [fp, #-16]
-	bl	fgetc
+	bl fgetc
 	mov	r3, r0
-	str	r3, [fp, #-8]
-	ldr	r3, [fp, #-8]
-	cmn	r3, #1
+	str	r3, [fp, #-16]
+	ldr	r3, [fp, #-16]
+	cmp	r3, #1
 	bne	.L3
 	sub	sp, fp, #4
 	ldmfd	sp!, {fp, lr}
 	bx	lr
-.L6:
-	.align	2
-.L5:
-	.word	lookup
 	.size	encode, .-encode
 	.section	.rodata
 	.align	2
@@ -338,8 +333,9 @@ main:
 	stmfd	sp!, {fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #24
-	str	r0, [fp, #-16]
-	str	r1, [fp, #-20]
+	str	r0, [fp, #-16]  @ argc
+	str	r1, [fp, #-20]  @ argv
+
 	ldr	r3, [fp, #-16]
 	cmp	r3, #2
 	beq	.L8
@@ -347,7 +343,7 @@ main:
 	ldr	r3, [r3, #0]
 	ldr	r0, .L13
 	mov	r1, r3
-	bl	printf
+	bl printf
 	mov	r3, #1
 	str	r3, [fp, #-24]
 	b	.L9
@@ -357,47 +353,47 @@ main:
 	ldr	r3, [r3, #0]
 	mov	r0, r3
 	ldr	r1, .L13+4
-	bl	fopen
+	bl fopen
 	mov	r3, r0
 	str	r3, [fp, #-12]
 	ldr	r3, [fp, #-12]
 	cmp	r3, #0
 	bne	.L10
 	ldr	r0, .L13+8
-	bl	perror
+	bl perror
 	mov	r3, #1
 	str	r3, [fp, #-24]
 	b	.L9
 .L10:
 	ldr	r0, .L13+12
-	bl	puts
+	bl puts
 	ldr	r0, .L13+16
 	ldr	r1, .L13+20
-	bl	fopen
+	bl fopen
 	mov	r3, r0
 	str	r3, [fp, #-8]
 	ldr	r3, [fp, #-8]
 	cmp	r3, #0
 	bne	.L11
 	ldr	r0, .L13+24
-	bl	perror
+	bl perror
 	ldr	r0, [fp, #-12]
-	bl	fclose
+	bl fclose
 	mov	r3, #1
 	str	r3, [fp, #-24]
 	b	.L9
 .L11:
 	ldr	r0, .L13+28
-	bl	puts
+	bl puts
 	ldr	r0, [fp, #-12]
 	ldr	r1, [fp, #-8]
-	bl	encode
+	bl encode
 	ldr	r0, [fp, #-8]
-	bl	fclose
+	bl fclose
 	ldr	r0, [fp, #-12]
-	bl	fclose
+	bl fclose
 	ldr	r0, .L13+32
-	bl	puts
+	bl puts
 	mov	r3, #0
 	str	r3, [fp, #-24]
 .L9:
@@ -406,18 +402,6 @@ main:
 	sub	sp, fp, #4
 	ldmfd	sp!, {fp, lr}
 	bx	lr
-.L14:
-	.align	2
-.L13:
-	.word	.LC57
-	.word	.LC58
-	.word	.LC59
-	.word	.LC60
-	.word	.LC61
-	.word	.LC62
-	.word	.LC63
-	.word	.LC64
-	.word	.LC65
 	.size	main, .-main
 	.ident	"GCC: (Sourcery G++ Lite 2008q3-72) 4.3.2"
 	.section	.note.GNU-stack,"",%progbits
