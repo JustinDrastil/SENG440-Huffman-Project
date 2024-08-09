@@ -24,7 +24,7 @@
 .LC10: .ascii "0011001010\000"
 .LC11: .ascii "0011001101\000"
 .LC12: .ascii "1101001100\000"
-.LC13: .ascii "110100100\000"
+.LC13: .ascii "Error opening file\000"  @ Added this for perror messages
 .LC14: .ascii "0011000010\000"
 .LC15: .ascii "00110000000\000"
 .LC16: .ascii "0011000011\000"
@@ -176,7 +176,7 @@ main:
 	bl fopen
 	cmp r0, #0
 	beq .L10
-	ldr r0, .L13+4
+	ldr r0, .LC13
 	bl perror
 	mov r0, #1
 	b .L9
@@ -187,7 +187,7 @@ main:
 	bl fopen
 	cmp r0, #0
 	beq .L11
-	ldr r0, .L13+8
+	ldr r0, .LC13
 	bl perror
 	mov r0, #1
 	b .L9
