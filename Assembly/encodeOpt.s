@@ -142,7 +142,7 @@ encode:
 	str r1, [fp, #-20]  @ lookup table pointer
 
 	b .L1
-.L2:
+.L2:  @ Loop body start
 	ldr r0, [fp, #-16]
 	bl fgetc
 	mov r3, r0
@@ -152,7 +152,7 @@ encode:
 	ldr r2, [r1, r3, lsl #2]
 	bl fputs
 	b .L2
-.L3:
+.L3:  @ Loop exit
 	ldmfd sp!, {fp, lr}
 	bx lr
 	.size encode, .-encode
