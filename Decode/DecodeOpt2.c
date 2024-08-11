@@ -98,17 +98,17 @@ static void buildPath(Node *root, int code, int depth) {
     const char bit = lookup[code][depth];
     // BARR-C: braces surround blocks of code in if, else, while, etc.
     // with braces on their own lines
-    if (bit == '\0') {
+    if ('\0' == bit) {
         // BARR-C: Comment an explanation for casts!
         // code is an unsigned integer, where the value aligns with the ASCII 8-bit value
         // that represents a character
         root->character = (uint8_t)code;
-    } else if (bit == '0') {
+    } else if ('0' == bit) {
         if (!root->left) {
             root->left = createNode('*');
         }
         buildPath(root->left, code, depth + 1);
-    } else if (bit == '1') {
+    } else if ('1' == bit) {
         if (!root->right) {
             root->right = createNode('*');
         }
@@ -156,9 +156,9 @@ static void decode(FILE *input, FILE *output, Node *root) {
     // with braces on their own lines
     while ((bit = fgetc(input)) != EOF) {
         // BARR-C: constants on left of an if comparison
-        if (bit == '0') {
+        if ('0' == bit) {
             current = current->left;
-        } else if (bit == '1') {
+        } else if ('1' == bit) {
             current = current->right;
         } else {
             // Invalid Character
@@ -182,7 +182,7 @@ static void decode(FILE *input, FILE *output, Node *root) {
 // Main function to handle file operations and initiate decoding
 int main(int argc, char *argv[]) {
     // Step 1: Access Encoded File
-    if (argc != 2) {
+    if (2 != argc) {
         // BARR-C: Display usage information
         fprintf(stderr, "Usage: %s <encoded file>\n", argv[0]);
         return EXIT_FAILURE;
